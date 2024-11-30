@@ -48,15 +48,104 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Atölye API Endpoint'leri
-app.post('/api/workshops', async (req, res) => {
+// MongoDB Atlas Bağlantısı
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
+
+// Workshop Şeması
+const workshopSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  duration: { type: Number, required: true },
+  maxParticipants: { type: Number, required: true },
+  price: { type: Number, required: true },
+  imageUrl: { type: String },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Reservation Şeması
+const reservationSchema = new mongoose.Schema({
+  workshopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop', required: true },
+  fullName: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  participants: { type: Number, required: true },
+  notes: String,
+  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Model tanımlamaları
+const Workshop = mongoose.model('Workshop', workshopSchema);
+const Reservation = mongoose.model('Reservation', reservationSchema);
+
+let isConnectedToDB = false;
+
+// MongoDB Bağlantısı
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
+.then(() => {
+  console.log('MongoDB Atlas bağlantısı başarılı');
+  isConnectedToDB = true;
+})
+.catch(err => {
+  console.error('MongoDB Atlas bağlantı hatası:', err);
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('error', err => {
+  console.error('MongoDB bağlantı hatası:', err);
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bağlantısı koptu');
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB bağlantısı yeniden sağlandı');
+  isConnectedToDB = true;
+});
+
+// API Routes
+app.get('/api/stats', async (req, res) => {
   try {
-    const workshop = new Workshop(req.body);
-    await workshop.save();
-    res.status(201).json({ message: 'Atölye başarıyla oluşturuldu', workshop });
+    if (!isConnectedToDB) {
+      throw new Error('Veritabanı bağlantısı yok');
+    }
+
+    const [totalWorkshops, totalReservations, reservationsByStatus] = await Promise.all([
+      Workshop.countDocuments(),
+      Reservation.countDocuments(),
+      Reservation.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
+
+    res.json({
+      totalWorkshops,
+      totalReservations,
+      reservationsByStatus: reservationsByStatus.map(item => ({
+        status: item._id,
+        count: item.count
+      }))
+    });
   } catch (error) {
-    console.error('Atölye oluşturma hatası:', error);
-    res.status(500).json({ error: 'Atölye oluşturulurken bir hata oluştu' });
+    console.error('Stats getirme hatası:', error);
+    res.status(500).json({
+      error: 'İstatistikler alınırken bir hata oluştu',
+      details: error.message,
+      totalWorkshops: 0,
+      totalReservations: 0,
+      reservationsByStatus: []
+    });
   }
 });
 
@@ -79,6 +168,95 @@ app.get('/api/workshops', async (req, res) => {
       details: error.message,
       workshops: []
     });
+  }
+});
+
+app.get('/api/reservations', async (req, res) => {
+  try {
+    if (!isConnectedToDB) {
+      throw new Error('Veritabanı bağlantısı yok');
+    }
+
+    const reservations = await Reservation.find()
+      .populate('workshopId', 'title')
+      .lean()
+      .sort({ createdAt: -1 });
+
+    res.json(reservations || []);
+  } catch (error) {
+    console.error('Rezervasyonları getirme hatası:', error);
+    res.status(500).json({
+      error: 'Rezervasyonlar alınırken bir hata oluştu',
+      details: error.message,
+      reservations: []
+    });
+  }
+});
+
+app.post('/api/workshops', async (req, res) => {
+  try {
+    if (!isConnectedToDB) {
+      throw new Error('Veritabanı bağlantısı yok');
+    }
+
+    const workshop = new Workshop(req.body);
+    await workshop.save();
+    res.status(201).json({ message: 'Atölye başarıyla oluşturuldu', workshop });
+  } catch (error) {
+    console.error('Atölye oluşturma hatası:', error);
+    res.status(500).json({ 
+      error: 'Atölye oluşturulurken bir hata oluştu',
+      details: error.message
+    });
+  }
+});
+
+app.post('/api/reservations', async (req, res) => {
+  try {
+    const { workshopId, fullName, email, phone, participants, notes } = req.body;
+
+    // Workshop'u kontrol et
+    const workshop = await Workshop.findById(workshopId);
+    if (!workshop) {
+      return res.status(404).json({ error: 'Atölye bulunamadı' });
+    }
+
+    // Mevcut rezervasyonları kontrol et
+    const existingReservations = await Reservation.find({ 
+      workshopId: workshopId,
+      status: { $ne: 'cancelled' } // İptal edilmemiş rezervasyonlar
+    });
+
+    // Toplam katılımcı sayısını hesapla
+    const totalParticipants = existingReservations.reduce((sum, res) => sum + res.participants, 0);
+
+    // Yeni rezervasyon için yer var mı kontrol et
+    if (totalParticipants + participants > workshop.maxParticipants) {
+      return res.status(400).json({ 
+        error: 'Bu atölye için yeteri kontenjan bulunmamaktadır' 
+      });
+    }
+
+    // Yeni rezervasyon oluştur
+    const reservation = new Reservation({
+      workshopId,
+      fullName,
+      email,
+      phone,
+      participants,
+      notes,
+      status: 'pending'
+    });
+
+    await reservation.save();
+    res.status(201).json({ 
+      message: 'Rezervasyon başarıyla oluşturuldu',
+      reservation 
+    });
+
+  } catch (error) {
+    console.error('Rezervasyon oluşturma hatası:', error);
+    res.status(500).json({ error: 'Rezervasyon oluşturulurken bir hata oluştu' });
   }
 });
 
@@ -136,68 +314,6 @@ app.delete('/api/workshops/:id', async (req, res) => {
   }
 });
 
-// Rezervasyon API Endpoint'leri
-app.post('/api/reservations', async (req, res) => {
-  try {
-    const { workshopId, fullName, email, phone, participants, notes } = req.body;
-
-    // Workshop'u kontrol et
-    const workshop = await Workshop.findById(workshopId);
-    if (!workshop) {
-      return res.status(404).json({ error: 'Atölye bulunamadı' });
-    }
-
-    // Mevcut rezervasyonları kontrol et
-    const existingReservations = await Reservation.find({ 
-      workshopId: workshopId,
-      status: { $ne: 'cancelled' } // İptal edilmemiş rezervasyonlar
-    });
-
-    // Toplam katılımcı sayısını hesapla
-    const totalParticipants = existingReservations.reduce((sum, res) => sum + res.participants, 0);
-
-    // Yeni rezervasyon için yer var mı kontrol et
-    if (totalParticipants + participants > workshop.maxParticipants) {
-      return res.status(400).json({ 
-        error: 'Bu atölye için yeteri kontenjan bulunmamaktadır' 
-      });
-    }
-
-    // Yeni rezervasyon oluştur
-    const reservation = new Reservation({
-      workshopId,
-      fullName,
-      email,
-      phone,
-      participants,
-      notes,
-      status: 'pending'
-    });
-
-    await reservation.save();
-    res.status(201).json({ 
-      message: 'Rezervasyon başarıyla oluşturuldu',
-      reservation 
-    });
-
-  } catch (error) {
-    console.error('Rezervasyon oluşturma hatası:', error);
-    res.status(500).json({ error: 'Rezervasyon oluşturulurken bir hata oluştu' });
-  }
-});
-
-app.get('/api/reservations', async (req, res) => {
-  try {
-    const reservations = await Reservation.find()
-      .populate('workshopId')
-      .sort({ createdAt: -1 });
-    res.json(reservations);
-  } catch (err) {
-    console.error('Rezervasyon listesi getirme hatası:', err);
-    res.status(500).json({ error: 'Rezervasyonlar getirilemedi', details: err.message });
-  }
-});
-
 app.put('/api/reservations/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
@@ -234,105 +350,6 @@ app.delete('/api/reservations/:id', async (req, res) => {
     res.status(500).json({ error: 'Rezervasyon silinirken bir hata oluştu' });
   }
 });
-
-// İstatistik endpoint'leri
-app.get('/api/stats', async (req, res) => {
-  try {
-    if (!isConnectedToDB) {
-      throw new Error('Veritabanı bağlantısı yok');
-    }
-
-    const [totalWorkshops, totalReservations, reservationsByStatus] = await Promise.all([
-      Workshop.countDocuments(),
-      Reservation.countDocuments(),
-      Reservation.aggregate([
-        { $group: { _id: "$status", count: { $sum: 1 } } }
-      ])
-    ]);
-
-    res.json({
-      totalWorkshops,
-      totalReservations,
-      reservationsByStatus: reservationsByStatus.map(item => ({
-        status: item._id,
-        count: item.count
-      }))
-    });
-  } catch (error) {
-    console.error('Stats getirme hatası:', error);
-    res.status(500).json({
-      error: 'İstatistikler alınırken bir hata oluştu',
-      details: error.message,
-      totalWorkshops: 0,
-      totalReservations: 0,
-      reservationsByStatus: []
-    });
-  }
-});
-
-// MongoDB Atlas Bağlantısı
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
-
-let isConnectedToDB = false;
-
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
-.then(() => {
-  console.log('MongoDB Atlas bağlantısı başarılı');
-  isConnectedToDB = true;
-})
-.catch(err => {
-  console.error('MongoDB Atlas bağlantı hatası:', err);
-  isConnectedToDB = false;
-});
-
-mongoose.connection.on('error', err => {
-  console.error('MongoDB bağlantı hatası:', err);
-  isConnectedToDB = false;
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB bağlantısı koptu');
-  isConnectedToDB = false;
-});
-
-mongoose.connection.on('connected', () => {
-  console.log('MongoDB bağlantısı yeniden sağlandı');
-  isConnectedToDB = true;
-});
-
-// Workshop Şeması
-const workshopSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  date: { type: Date, required: true },
-  time: { type: String, required: true },
-  duration: { type: Number, required: true },
-  maxParticipants: { type: Number, required: true },
-  price: { type: Number, required: true },
-  imageUrl: { type: String },
-  isActive: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now }
-});
-
-// Reservation Şeması
-const reservationSchema = new mongoose.Schema({
-  workshopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop', required: true },
-  fullName: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  participants: { type: Number, required: true },
-  notes: String,
-  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Workshop = mongoose.model('Workshop', workshopSchema);
-const Reservation = mongoose.model('Reservation', reservationSchema);
 
 // Statik dosyaları servis et (route tanımlamalarından sonra)
 app.use(express.static(__dirname));
