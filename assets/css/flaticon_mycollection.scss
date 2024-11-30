@@ -1,0 +1,45 @@
+$flaticon_mycollection-font: "flaticon_mycollection";
+
+@font-face {
+    font-family: $flaticon_mycollection-font;
+    src: url("./flaticon_mycollection.woff2?7080c90c7d40f5b38976f902ef5304e1") format("woff2"),
+url("./flaticon_mycollection.woff?7080c90c7d40f5b38976f902ef5304e1") format("woff"),
+url("./flaticon_mycollection.eot?7080c90c7d40f5b38976f902ef5304e1#iefix") format("embedded-opentype"),
+url("./flaticon_mycollection.ttf?7080c90c7d40f5b38976f902ef5304e1") format("truetype"),
+url("./flaticon_mycollection.svg?7080c90c7d40f5b38976f902ef5304e1#flaticon_mycollection") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon_mycollection !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+$flaticon_mycollection-map: (
+    "firca": "\f101",
+    "gda": "\f102",
+    "aile": "\f103",
+    "sanat": "\f104",
+    "kil": "\f105",
+);
+
+.flaticon-firca:before {
+    content: map-get($flaticon_mycollection-map, "firca");
+}
+.flaticon-gda:before {
+    content: map-get($flaticon_mycollection-map, "gda");
+}
+.flaticon-aile:before {
+    content: map-get($flaticon_mycollection-map, "aile");
+}
+.flaticon-sanat:before {
+    content: map-get($flaticon_mycollection-map, "sanat");
+}
+.flaticon-kil:before {
+    content: map-get($flaticon_mycollection-map, "kil");
+}

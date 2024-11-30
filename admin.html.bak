@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MakerX Atölye - Admin Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        .admin-sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .admin-sidebar .nav-link {
+            color: #fff;
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: #f4511e;
+        }
+        .admin-sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .content-wrapper {
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 2px solid #f4511e;
+        }
+        .btn-primary {
+            background-color: #f4511e;
+            border-color: #f4511e;
+        }
+        .btn-primary:hover {
+            background-color: #e04018;
+            border-color: #e04018;
+        }
+        .table th {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            padding: 8px 12px;
+        }
+        .modal-header {
+            background-color: #f4511e;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 admin-sidebar">
+                <h3 class="text-white text-center mb-4">Admin Panel</h3>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#workshops" data-bs-toggle="tab">
+                        <i class="fas fa-chalkboard-teacher"></i> Atölyeler
+                    </a>
+                    <a class="nav-link" href="#reservations" data-bs-toggle="tab">
+                        <i class="fas fa-calendar-check"></i> Rezervasyonlar
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="content-wrapper">
+                    <div class="tab-content">
+                        <!-- Atölyeler Tab -->
+                        <div class="tab-pane fade show active" id="workshops">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Atölyeler</h5>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#workshopModal">
+                                        <i class="fas fa-plus"></i> Yeni Atölye
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Atölye Adı</th>
+                                                    <th>Tarih</th>
+                                                    <th>Saat</th>
+                                                    <th>Süre</th>
+                                                    <th>Kontenjan</th>
+                                                    <th>Fiyat</th>
+                                                    <th>Durum</th>
+                                                    <th>İşlemler</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="workshopsList">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rezervasyonlar Tab -->
+                        <div class="tab-pane fade" id="reservations">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Rezervasyonlar</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Atölye</th>
+                                                    <th>Ad Soyad</th>
+                                                    <th>E-posta</th>
+                                                    <th>Telefon</th>
+                                                    <th>Katılımcı</th>
+                                                    <th>Durum</th>
+                                                    <th>Tarih</th>
+                                                    <th>İşlemler</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="reservationsList">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atölye Modal -->
+    <div class="modal fade" id="workshopModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Atölye</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="workshopForm">
+                        <div class="mb-3">
+                            <label class="form-label">Atölye Adı</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tarih</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Saat</label>
+                            <input type="time" class="form-control" id="time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Süre (Saat)</label>
+                            <input type="number" class="form-control" id="duration" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Maksimum Katılımcı</label>
+                            <input type="number" class="form-control" id="maxParticipants" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fiyat (TL)</label>
+                            <input type="number" class="form-control" id="price" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Görsel URL</label>
+                            <input type="url" class="form-control" id="imageUrl">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveWorkshop()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sayfa yüklendiğinde
+        $(document).ready(function() {
+            loadWorkshops();
+            loadReservations();
+        });
+
+        // Atölyeleri getir
+        function loadWorkshops() {
+            $.ajax({
+                url: 'http://localhost:3003/api/workshops',
+                method: 'GET',
+                success: function(workshops) {
+                    const tbody = $('#workshopsList');
+                    tbody.empty();
+                    
+                    workshops.forEach(workshop => {
+                        const date = new Date(workshop.date).toLocaleDateString('tr-TR');
+                        const row = `
+                            <tr>
+                                <td>${workshop.title}</td>
+                                <td>${date}</td>
+                                <td>${workshop.time}</td>
+                                <td>${workshop.duration} saat</td>
+                                <td>${workshop.maxParticipants}</td>
+                                <td>${workshop.price} TL</td>
+                                <td>
+                                    <span class="badge bg-${workshop.isActive ? 'success' : 'danger'}">
+                                        ${workshop.isActive ? 'Aktif' : 'Pasif'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" onclick="editWorkshop('${workshop._id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteWorkshop('${workshop._id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Atölye listesi getirme hatası:', error);
+                    alert('Atölyeler yüklenirken bir hata oluştu.');
+                }
+            });
+        }
+
+        // Rezervasyonları getir
+        function loadReservations() {
+            $.ajax({
+                url: 'http://localhost:3003/api/reservations',
+                method: 'GET',
+                success: function(reservations) {
+                    const tbody = $('#reservationsList');
+                    tbody.empty();
+                    
+                    reservations.forEach(reservation => {
+                        const date = new Date(reservation.createdAt).toLocaleDateString('tr-TR');
+                        const statusClass = {
+                            'pending': 'warning',
+                            'confirmed': 'success',
+                            'cancelled': 'danger'
+                        }[reservation.status];
+                        
+                        const statusText = {
+                            'pending': 'Beklemede',
+                            'confirmed': 'Onaylandı',
+                            'cancelled': 'İptal Edildi'
+                        }[reservation.status];
+
+                        const row = `
+                            <tr>
+                                <td>${reservation.workshopId.title}</td>
+                                <td>${reservation.fullName}</td>
+                                <td>${reservation.email}</td>
+                                <td>${reservation.phone}</td>
+                                <td>${reservation.participants}</td>
+                                <td>
+                                    <span class="badge bg-${statusClass}">
+                                        ${statusText}
+                                    </span>
+                                </td>
+                                <td>${date}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-success" onclick="updateReservationStatus('${reservation._id}', 'confirmed')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="updateReservationStatus('${reservation._id}', 'cancelled')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Rezervasyon listesi getirme hatası:', error);
+                    alert('Rezervasyonlar yüklenirken bir hata oluştu.');
+                }
+            });
+        }
+
+        // Yeni atölye kaydet
+        function saveWorkshop() {
+            const workshopData = {
+                title: $('#title').val(),
+                description: $('#description').val(),
+                date: $('#date').val(),
+                time: $('#time').val(),
+                duration: parseInt($('#duration').val()),
+                maxParticipants: parseInt($('#maxParticipants').val()),
+                price: parseInt($('#price').val()),
+                imageUrl: $('#imageUrl').val()
+            };
+
+            $.ajax({
+                url: 'http://localhost:3003/api/workshops',
+                method: 'POST',
+                data: JSON.stringify(workshopData),
+                contentType: 'application/json',
+                success: function(response) {
+                    $('#workshopModal').modal('hide');
+                    $('#workshopForm')[0].reset();
+                    loadWorkshops();
+                    alert('Atölye başarıyla oluşturuldu!');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Atölye kaydetme hatası:', error);
+                    alert('Atölye kaydedilirken bir hata oluştu.');
+                }
+            });
+        }
+
+        // Atölye sil
+        function deleteWorkshop(id) {
+            if (confirm('Bu atölyeyi silmek istediğinizden emin misiniz?')) {
+                $.ajax({
+                    url: `http://localhost:3003/api/workshops/${id}`,
+                    method: 'DELETE',
+                    success: function() {
+                        loadWorkshops();
+                        alert('Atölye başarıyla silindi!');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Atölye silme hatası:', error);
+                        alert('Atölye silinirken bir hata oluştu.');
+                    }
+                });
+            }
+        }
+
+        // Rezervasyon durumunu güncelle
+        function updateReservationStatus(id, status) {
+            $.ajax({
+                url: `http://localhost:3003/api/reservations/${id}/status`,
+                method: 'PUT',
+                data: JSON.stringify({ status }),
+                contentType: 'application/json',
+                success: function() {
+                    loadReservations();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Rezervasyon durumu güncelleme hatası:', error);
+                    alert('Rezervasyon durumu güncellenirken bir hata oluştu.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

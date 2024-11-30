@@ -1,0 +1,97 @@
+.yl-newslatter-section {
+	padding: 35px 0px;
+	background-color: #000;
+}
+.yl-newslatter-content {
+	padding: 0px 40px;
+	.yl-newslatter-text-icon {
+		.yl-newslatter-icon {
+			line-height: 1;
+			margin-right: 20px;
+			i {
+				color: #424242;
+				font-size: 60px;
+			}
+		}
+		.yl-newslatter-text {
+			h3 {
+				color: #fff;
+				font-size: 30px;
+				font-weight: 700;
+				padding-bottom: 10px;
+			}
+			span {
+				color: #bbbbbb;
+				img {
+					margin-top: -5px;
+					padding-left: 5px;
+				}
+			}
+		}
+	}
+	.yl-newslatter-form {
+		margin-top: 20px;
+		padding-left: 55px;
+		input {
+			height: 48px;
+			width: 100%;
+			border: none;
+			max-width: 320px;
+			padding-left: 20px;
+			background-color: #292929;
+		}
+		button {
+			top: 0;
+			right: 0;
+			padding: 0;
+			color: #fff;
+			border: none;
+			width: 145px;
+			height: 45px;
+			font-size: 14px;
+			font-weight: 700;
+			position: absolute;
+			background-color: $base-color;
+			transition: .3s all ease-in-out;
+			@extend%btn-hover;
+			&:after {
+				background-color: #fff
+			}
+
+			i {
+				margin-left: 5px;
+				transition: .3s all ease-in-out;
+			}
+			&:hover {
+				color: #000;
+				i {
+					animation: toLeftFromRight .3s forwards;
+				}
+			}
+		}
+	}
+}
+/*Newslatter section 2*/
+/*--------------------------*/
+.yl-newslatter-section-2 {
+	z-index: 1;
+	background-color: #f7f7f7;
+	&:before {
+		left: 0;
+		bottom: 0;
+		z-index: -1;
+		content: '';
+		width: 100%;
+		height: 70px;
+		position: absolute;
+		background-color: #000a1f;
+	}
+	.yl-newslatter-content {
+		border-radius: 5px;
+		padding: 35px 40px;
+		background-color: #000;
+		.yl-newslatter-form button {
+			background-color: #ff5520;
+		}
+	}
+}

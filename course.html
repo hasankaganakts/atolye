@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>makerXatölye - Atölyeler</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+   <link rel="stylesheet" href="assets/css/fontawesome-all.css">
+   <link rel="stylesheet" href="assets/css/flaticon.css">
+   <link rel="stylesheet" href="assets/css/animate.css">
+   <link rel="stylesheet" href="assets/css/jquery.fancybox.min.css">
+   <link rel="stylesheet" href="assets/css/jquery.mCustomScrollbar.min.css">
+   <link rel="stylesheet" href="assets/css/odometer-theme-default.css">
+   <link rel="stylesheet" href="assets/css/owl.carousel.css">
+   <link rel="stylesheet" href="assets/css/nice-select.css">
+   <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="yl-home">
+   <!-- preloader - start -->
+   <div id="yl-preloader"></div>
+   <div class="up">
+      <a href="#" class="scrollup text-center"><i class="fas fa-chevron-up"></i></a>
+   </div>
+      <!-- Start of header section
+         ============================================= -->
+         <header id="yl-header" class="yl-header-main header-style-three">
+            <div class="yl-header-three clearfix">
+               <div class="container">
+                  <div class="yl-brand-logo float-left">
+                     <a href="#"><img src="assets/img/logo2.png" alt=""></a>
+                  </div>
+                  <div class="yl-main-nav-wrap  float-right">
+                     <nav class="yl-main-navigation ul-li">
+                        <ul id="main-nav" class="navbar-nav text-capitalize clearfix">
+                           <li><a href="index-3.html">Anasayfa</a></li>
+                           <li><a href="about.html">Hakkımızda</a></li>
+                           <li><a href="course.html">Atölyeler</a></li>
+                           <li><a href="gallery.html">Galeri</a></li>
+                           <li><a href="contact.html">İletişim</a></li>
+                           </li>
+                           </li>
+                        </ul>
+                     </nav>
+                  </div>
+                  <div class="yl-mobile-menu-wrap">
+                     <div class="yl-mobile_menu position-relative">
+                        <div class="yl-mobile_menu_button yl-open_mobile_menu">
+                           <i class="fas fa-bars"></i>
+                        </div>
+                        <div class="yl-mobile_menu_wrap">
+                           <div class="mobile_menu_overlay yl-open_mobile_menu"></div>
+                           <div class="yl-mobile_menu_content">
+                              <div class="yl-mobile_menu_close yl-open_mobile_menu">
+                                 <i class="fas fa-times"></i>
+                              </div>
+                              <div class="m-brand-logo text-center">
+                                 <a href="#"><img src="assets/img/logo/logo4.png" alt=""></a>
+                              </div>
+                              <nav class="yl-mobile-main-navigation  clearfix ul-li">
+                                 <ul id="m-main-nav" class="navbar-nav text-capitalize clearfix">
+                                    <li class="dropdown">
+                                       <a href="#">Home</a>
+                                       <ul class="dropdown-menu clearfix">
+                                          <li><a target="_blank" href="index.html">Home Page 1</a></li>
+                                          <li><a target="_blank" href="index-2.html">Home Page 2</a></li>
+                                          <li><a target="_blank" href="index-3.html">Home Page 3</a></li>
+                                          <li><a target="_blank" href="index-4.html">Home Page 4</a></li>
+                                       </ul>
+                                    </li>
+                                    <li><a href="about.html">About</a></li>
+                                    <li class="dropdown">
+                                       <a href="#">Course</a>
+                                       <ul class="dropdown-menu clearfix">
+                                          <li><a target="_blank" href="course.html">Course</a></li>
+                                          <li><a target="_blank" href="course-details.html">Course Details</a></li>
+                                       </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                       <a href="#">Pages</a>
+                                       <ul class="dropdown-menu clearfix">
+                                          <li><a target="_blank" href="gallery.html">Gallery</a></li>
+                                          <li><a target="_blank" href="contact.html">Contact</a></li>
+                                          <li><a target="_blank" href="event.html">Event</a></li>
+                                          <li><a target="_blank" href="event-details.html">Event Details</a></li>
+                                          <li><a target="_blank" href="faq.html">Faq</a></li>
+                                          <li><a target="_blank" href="404.html">404</a></li>
+                                       </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                       <a href="#">Blog</a>
+                                       <ul class="dropdown-menu clearfix">
+                                          <li><a target="_blank" href="blog-1.html">Blog 1</a></li>
+                                          <li><a target="_blank" href="blog-2.html">Blog 2</a></li>
+                                          <li><a target="_blank" href="blog-details-1.html">Blog Details 1</a></li>
+                                          <li><a target="_blank" href="blog-details-2.html">Blog Details 2</a></li>
+                                       </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                       <a href="#">Instructor</a>
+                                       <ul class="dropdown-menu clearfix">
+                                          <li><a target="_blank" href="instructor.html">Instructor</a></li>
+                                          <li><a target="_blank" href="instructor-details.html">Instructor Details</a></li>
+                                       </ul>
+                                    </li>
+                                 </ul>
+                              </nav>
+                           </div>
+                        </div>
+                     </div>
+                     <!-- /Mobile-Menu -->
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </header>
+          <!-- Login-Sign Form -->
+         <div class="modal yl-login-modal fade" id="exampleModal" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog" role="document">
+               <div class="modal-content">
+                  <div class="yl-modal-header position-relative" data-background="assets/img/banner/lg-bg.jpg">
+                     <div class="yl-login-head text-center pera-content">
+                        <a href="#"><img src="assets/img/logo/logo5.png" alt=""></a>
+                        <p>Boamco laboris nisi ut aliquip ex ea commodo conseq nderit in voluptate velit esse</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>   
+      <!-- Start of header section
+         ============================================= -->
+
+      <!-- Start of breadcrumb section
+         ============================================= -->
+         <section id="yl-breadcrumb" class="yl-breadcrumb-section position-relative" data-background="assets/img/banner/bn-bg1.jpg">
+            <span class="breadcrumb-overlay position-absolute"></span>
+            <div class="container">
+               <div class="yl-breadcrumb-content text-center yl-headline"> 
+                  <h2>Atölyeler</h2>
+                  <div class="yl-breadcrumb-item ul-li">
+                     <ul class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="index-3.html">Anasayfa</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Atölyeler</li>
+                   </ul>
+                </div>
+             </div>
+          </div>
+       </section>
+      <!-- End of breadcrumb section
+         ============================================= -->
+
+      <!-- Start of course page section
+         ============================================= -->
+         <section id="course-page-course" class="course-page-course-section">
+             <div class="container">
+               <div class="course-page-course-content">
+                  <div class="course-page-course-content-top">
+                     <div class="row">
+                        <div class="col-md-6">
+                  </div>
+                  <div class="course-page-courses-item">
+                     <div class="row">
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/waffle_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>07.12.2024</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-1.html">Waffle ve Yaratıcılık: Tatlı Sanatlar Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                       <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(0 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="course-details-1.html"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/yilbasi_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>14.12.2024</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-2.html">Yılbaşı Coşkusunu Kapınıza Taşıyın: Süsleme Atölyesi
+                                       </a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                       <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(0 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/kil_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>21.12.2024</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-3.html">Ellerinizle Sanat Yaratın: Kil Modelleme Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 20 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(0 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/cicekj_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>28.12.2024</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-4.html">Çiçeklerle Sanat:<br> Buket Yapım Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(0 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/dj_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>04.01.2025</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-5.html">Ritim ve Beat:<br> DJ Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(12 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/mandala_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>11.01.2025</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-6.html">Çizgiler ve Renkler: Mandala Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(12 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/Kahvej_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>18.01.2025</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-7.html">Fincanda Sanat:<br> Kahve Demleme Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(12 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                           <div class="yl-popular-course-img-text">
+                              <div class="yl-popular-course-img text-center">
+                                 <img src="assets/img/course/punch_348x232.jpg" alt="">
+                              </div>
+                              <div class="yl-popular-course-text">
+                                 <div class="popular-course-fee clearfix">
+                                    <i class="fas fa-clock"><span></span></i><span>25.01.2025</span>
+                                    <div class="course-fee-amount">
+                                       <span>12.00 - 13.00</span>
+
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-title yl-headline">
+                                    <h3><a href="course-details-8.html">Punch ve Yaratıcılık:<br> Doku Tasarım Atölyesi</a>
+                                    </h3>
+                                    <div class="yl-course-meta">
+                                       <a href="#"><i class="fas fa-file"></i>60 - 90 Dakika</a>
+                                    <a href="#"><i class="fas fa-user"></i> 15 Katılımcı</a>
+                                    </div>
+                                 </div>
+                                 <div class="popular-course-rate clearfix ul-li">
+                                    <div class="p-rate-vote float-left">
+                                       <ul>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                          <li><i class="fas fa-star"></i></li>
+                                       </ul>
+                                       <span>(12 Votes)</span>
+                                    </div>
+                                    <div class="p-course-btn float-right">
+                                       <a href="#"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        
+                        
+                     </div>
+                     <div class="yl-course-pagination text-center ul-li">
+                     </div>
+                  </div>
+               </div>
+             </div>
+         </section>
+      <!-- End of course page section
+         ============================================= -->        
+
+      <!-- Start of Footer  section
+         ============================================= -->  
+         <footer id="yl-footer" class="yl-footer-section-2" data-background="assets/img/f-bg.jpg">
+            <div class="container">
+               <div class="yl-footer-content-wrap">
+                  <div class="row">
+                     <div class="col-lg-3 col-md-6">
+                        <div class="yl-footer-widget">
+                           <div class="yl-footer-logo-widget yl-headline pera-content">
+                              <div class="yl-footer-logo">
+                                 <a href="#"><img src="assets/img/logo/logo4.png" alt=""></a>
+                              </div>
+                              <p>Yaratıcılığınızı keşfetmeniz için ilham veren atölyeler! Hayal gücünüzle üretin, birlikte eğlenelim.</p>
+                              <a class="footer-logo-btn text-center text-uppercase" href="about.html">Hakkımızda</a>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6">
+                        <div class="yl-footer-widget">
+                           <div class="yl-footer-newslatter-widget pera-content">
+                              <h3 class="widget-title">Bültene Abone Ol</h3>
+                              <p>Atölyelerden haberdar olmak ve ilham veren içeriklere ulaşmak için abone olun.
+                              </p>
+                              <form action="#">
+                                 <input type="email" placeholder="E-posta adresinizi girin">
+                                 <button type="submit"><i class="far fa-paper-plane"></i></button>
+                              </form>
+                              <div class="yl-footer-social ul-li">
+                                 <ul>
+                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-behance"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                                 </ul>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6">
+                        <div class="yl-footer-widget">
+                           <div class="yl-footer-info-widget ul-li">
+                              <h3 class="widget-title">İletişim</h3>
+                              <ul>
+                                 <li>
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    <a href="#">Doğu Gazi Bulvarı
+                                    Efeler, Aydın</a>
+                                 </li>
+                                 <li>
+                                    <i class="fas fa-phone"></i><a href="#">0-000-000-0000</a>
+                                 </li>
+                              </ul>
+                              <div class="office-open-hour">
+                                 <span>Çalışma Saatleri: </span>
+                                 <p>Pzt. - Cmt.: 10:00 - 20:00<br>
+                                    Pazar: KAPALI
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6">
+                        <div class="yl-footer-widget">
+                           <div class="yl-footer-instagram-widget">
+                              <h3 class="widget-title">Instagram</h3>
+                              <div class="insta-feed ul-li clearfix">
+                                 <ul>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins1.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins2.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins3.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins4.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins5.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                    <li><a href="!#"><img src="assets/img/instagram/ins6.jpg" alt=""><i class="fab fa-instagram"></i></a></li>
+                                 </ul>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="yl-footer-copyright text-center"><span>© 2024 makerXatölye.</span></div>
+            </div>
+         </footer>
+      <!-- End of Footer section
+         ============================================= -->  
+
+         <!-- JS library -->
+         <script src="assets/js/jquery.js"></script>
+         <script src="assets/js/popper.min.js"></script>
+         <script src="assets/js/appear.js"></script>
+         <script src="assets/js/bootstrap.min.js"></script>
+         <script src="assets/js/wow.min.js"></script>
+         <script src="assets/js/jquery.fancybox.js"></script>
+         <script src="assets/js/owl.js"></script>
+         <script src="assets/js/isotope.pkgd.min.js"></script>
+         <script src="assets/js/imagesloaded.pkgd.min.js"></script>
+         <script src="assets/js/masonry.pkgd.min.js"></script>
+         <script src="assets/js/parallax-scroll.js"></script>
+         <script src="assets/js/jquery.nice-select.min.js"></script>
+         <script src="assets/js/typer.js"></script>
+         <script src="assets/js/custom.js"></script>
+      </body>
+      </html>          

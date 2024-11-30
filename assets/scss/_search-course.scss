@@ -1,0 +1,64 @@
+.yl-course-search-section-3 {
+	padding: 110px 0px;
+}
+.search-form-wrap {
+	margin: 0 auto;
+	max-width: 750px;
+	margin-top: 30px;
+	input {
+		width: 100%;
+		height: 60px;
+		border: none;
+		padding-left: 30px;
+		border-radius: 7px;
+		box-shadow: 0px 6px 38px 0px rgba(0, 0, 0, 0.07);
+	}
+	button {
+		top: 0;
+		right: 0;
+		color: #fff;
+		border: none;
+		height: 60px;
+		width: 150px;
+		font-weight: 700;
+		position: absolute;
+		border-radius: 7px;
+		background-color: #ff5520;
+	}
+}
+.yl-fun-fact-wrapper {
+	padding-top: 60px;
+}
+.yl-fun-fact-inner {
+	.yl-fun-fact-icon {
+		line-height: 1;
+		margin-right: 20px;
+		padding-right: 20px;
+		i {
+			color: #ff5520; 
+			font-size: 50px;
+		}
+		&:after {
+			top: 5px;
+			right: 0;
+			height: 40px;
+			width: 2px;
+			content: "";
+			position: absolute;
+			background-color: #f2f2f4;
+		}
+	}
+	.yl-fun-fact-text {
+		span,
+		strong {
+			line-height: 1;
+			font-size: 25px;
+			font-weight: 700;
+			font-family: $heading;
+		}
+		strong {
+			top: 2px;
+			position: relative;
+		}
+	}
+}
