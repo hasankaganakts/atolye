@@ -143,15 +143,11 @@ app.put('/api/workshops/:id', async (req, res) => {
 
 app.delete('/api/workshops/:id', async (req, res) => {
   try {
-    const workshop = await Workshop.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true }
-    );
+    const workshop = await Workshop.findByIdAndDelete(req.params.id);
     if (!workshop) {
       return res.status(404).json({ error: 'Atölye bulunamadı' });
     }
-    res.json({ message: 'Atölye başarıyla silindi' });
+    res.json({ message: 'Atölye başarıyla silindi', workshop });
   } catch (error) {
     console.error('Atölye silme hatası:', error);
     res.status(500).json({ error: 'Atölye silinirken bir hata oluştu' });
@@ -241,6 +237,19 @@ app.put('/api/reservations/:id/status', async (req, res) => {
   } catch (error) {
     console.error('Rezervasyon güncelleme hatası:', error);
     res.status(500).json({ error: 'Rezervasyon güncellenirken bir hata oluştu' });
+  }
+});
+
+app.delete('/api/reservations/:id', async (req, res) => {
+  try {
+    const reservation = await Reservation.findByIdAndDelete(req.params.id);
+    if (!reservation) {
+      return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+    }
+    res.json({ message: 'Rezervasyon başarıyla silindi', reservation });
+  } catch (error) {
+    console.error('Rezervasyon silme hatası:', error);
+    res.status(500).json({ error: 'Rezervasyon silinirken bir hata oluştu' });
   }
 });
 
