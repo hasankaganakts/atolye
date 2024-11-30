@@ -92,11 +92,11 @@ app.post('/api/workshops', async (req, res) => {
 
 app.get('/api/workshops', async (req, res) => {
   try {
-    const workshops = await Workshop.find({ isActive: true });
-    res.json(workshops);
+    const workshops = await Workshop.find().lean().sort({ date: 1 });
+    res.json(workshops || []);
   } catch (error) {
     console.error('Atölyeleri getirme hatası:', error);
-    res.status(500).json({ error: 'Atölyeler alınırken bir hata oluştu' });
+    res.status(500).json([]);
   }
 });
 
@@ -248,10 +248,10 @@ app.put('/api/reservations/:id/status', async (req, res) => {
 app.get('/api/stats', async (req, res) => {
   try {
     // Toplam atölye sayısı
-    const totalWorkshops = await Workshop.countDocuments({ isActive: true });
+    const totalWorkshops = await Workshop.countDocuments() || 0;
 
     // Toplam rezervasyon sayısı
-    const totalReservations = await Reservation.countDocuments();
+    const totalReservations = await Reservation.countDocuments() || 0;
 
     // Durumlara göre rezervasyon sayıları
     const reservationsByStatus = await Reservation.aggregate([
@@ -261,37 +261,54 @@ app.get('/api/stats', async (req, res) => {
           count: { $sum: 1 }
         }
       }
-    ]);
+    ]) || [];
 
     // Atölyelere göre rezervasyon sayıları
     const reservationsByWorkshop = await Reservation.aggregate([
       {
+        $lookup: {
+          from: 'workshops',
+          localField: 'workshopId',
+          foreignField: '_id',
+          as: 'workshopInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$workshopInfo',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $group: {
           _id: '$workshopId',
-          count: { $sum: 1 }
+          count: { $sum: 1 },
+          title: { $first: '$workshopInfo.title' }
         }
       }
-    ]);
-
-    // Workshop detaylarını ekle
-    const workshopDetails = await Workshop.find({
-      _id: { $in: reservationsByWorkshop.map(r => r._id) }
-    });
-
-    const reservationsWithWorkshopDetails = reservationsByWorkshop.map(r => ({
-      count: r.count,
-      workshop: workshopDetails.find(w => w._id.toString() === r._id.toString())
-    }));
+    ]) || [];
 
     res.json({
       totalWorkshops,
       totalReservations,
-      reservationsByStatus,
-      reservationsByWorkshop: reservationsWithWorkshopDetails
+      reservationsByStatus: reservationsByStatus.map(status => ({
+        status: status._id || 'unknown',
+        count: status.count || 0
+      })),
+      reservationsByWorkshop: reservationsByWorkshop.map(workshop => ({
+        id: workshop._id,
+        title: workshop.title || 'Bilinmeyen Atölye',
+        count: workshop.count || 0
+      }))
     });
   } catch (error) {
     console.error('İstatistik hatası:', error);
-    res.status(500).json({ error: 'İstatistikler alınırken bir hata oluştu' });
+    res.status(500).json({
+      totalWorkshops: 0,
+      totalReservations: 0,
+      reservationsByStatus: [],
+      reservationsByWorkshop: []
+    });
   }
 });
 
