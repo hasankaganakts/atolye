@@ -272,7 +272,7 @@ app.get('/api/workshops/:id', async (req, res) => {
   }
 });
 
-// Atölye güncelle
+// Atölye güncelleme endpoint'i
 app.put('/api/workshops/:id', async (req, res) => {
   try {
     const workshop = await Workshop.findByPk(req.params.id);
@@ -281,20 +281,20 @@ app.put('/api/workshops/:id', async (req, res) => {
     }
 
     await workshop.update(req.body);
-    res.json({ 
-      message: 'Atölye başarıyla güncellendi', 
-      workshop 
+    res.json({
+      message: 'Atölye başarıyla güncellendi',
+      workshop
     });
   } catch (error) {
     console.error('Atölye güncelleme hatası:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Atölye güncellenirken bir hata oluştu',
-      details: error.message 
+      details: error.message
     });
   }
 });
 
-// Atölye sil
+// Atölye silme endpoint'i
 app.delete('/api/workshops/:id', async (req, res) => {
   try {
     const workshop = await Workshop.findByPk(req.params.id);
@@ -303,14 +303,58 @@ app.delete('/api/workshops/:id', async (req, res) => {
     }
 
     await workshop.destroy();
-    res.json({ 
-      message: 'Atölye başarıyla silindi'
-    });
+    res.json({ message: 'Atölye başarıyla silindi' });
   } catch (error) {
     console.error('Atölye silme hatası:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Atölye silinirken bir hata oluştu',
-      details: error.message 
+      details: error.message
+    });
+  }
+});
+
+// Rezervasyon durum güncelleme endpoint'i
+app.put('/api/reservations/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Geçersiz durum değeri' });
+    }
+
+    const reservation = await Reservation.findByPk(req.params.id);
+    if (!reservation) {
+      return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+    }
+
+    await reservation.update({ status });
+    res.json({
+      message: 'Rezervasyon durumu güncellendi',
+      reservation
+    });
+  } catch (error) {
+    console.error('Rezervasyon durum güncelleme hatası:', error);
+    res.status(500).json({
+      error: 'Rezervasyon durumu güncellenirken bir hata oluştu',
+      details: error.message
+    });
+  }
+});
+
+// Rezervasyon silme endpoint'i
+app.delete('/api/reservations/:id', async (req, res) => {
+  try {
+    const reservation = await Reservation.findByPk(req.params.id);
+    if (!reservation) {
+      return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+    }
+
+    await reservation.destroy();
+    res.json({ message: 'Rezervasyon başarıyla silindi' });
+  } catch (error) {
+    console.error('Rezervasyon silme hatası:', error);
+    res.status(500).json({
+      error: 'Rezervasyon silinirken bir hata oluştu',
+      details: error.message
     });
   }
 });
