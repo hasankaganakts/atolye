@@ -97,8 +97,65 @@
         <!-- Workshops Section -->
         <div id="workshops" class="content-section" style="display: none;">
             <h2>Atölyeler</h2>
+            <div class="mb-4">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkshopModal">
+                    <i class="fas fa-plus"></i> Yeni Atölye Ekle
+                </button>
+            </div>
             <div class="row mt-4" id="workshopsList">
                 <!-- Workshop cards will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Add Workshop Modal -->
+        <div class="modal fade" id="addWorkshopModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Yeni Atölye Ekle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addWorkshopForm">
+                            <div class="mb-3">
+                                <label class="form-label">Atölye Adı</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Açıklama</label>
+                                <textarea class="form-control" name="description" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tarih</label>
+                                <input type="date" class="form-control" name="date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Saat</label>
+                                <input type="time" class="form-control" name="time" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Süre (Saat)</label>
+                                <input type="number" class="form-control" name="duration" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Maksimum Katılımcı</label>
+                                <input type="number" class="form-control" name="maxParticipants" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Fiyat (TL)</label>
+                                <input type="number" class="form-control" name="price" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Resim URL</label>
+                                <input type="url" class="form-control" name="imageUrl">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="btn btn-primary" onclick="addWorkshop()">Ekle</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -332,6 +389,50 @@
                 })
                 .catch(error => console.error('Rezervasyon silinirken hata:', error));
             }
+        }
+
+        // Add Workshop
+        function addWorkshop() {
+            const form = document.getElementById('addWorkshopForm');
+            const formData = new FormData(form);
+            
+            const workshopData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                date: formData.get('date'),
+                time: formData.get('time'),
+                duration: parseInt(formData.get('duration')),
+                maxParticipants: parseInt(formData.get('maxParticipants')),
+                price: parseInt(formData.get('price')),
+                imageUrl: formData.get('imageUrl'),
+                isActive: true
+            };
+
+            fetch(`${BASE_URL}/api/workshops`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(workshopData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                // Close modal and refresh workshops list
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addWorkshopModal'));
+                modal.hide();
+                form.reset();
+                loadWorkshops();
+                
+                // Show success message
+                alert('Atölye başarıyla eklendi!');
+            })
+            .catch(error => {
+                console.error('Atölye eklenirken hata:', error);
+                alert('Atölye eklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+            });
         }
 
         // Load initial dashboard stats
