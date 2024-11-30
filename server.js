@@ -62,11 +62,23 @@ app.post('/api/workshops', async (req, res) => {
 
 app.get('/api/workshops', async (req, res) => {
   try {
-    const workshops = await Workshop.find().lean().sort({ date: 1 });
+    if (!isConnectedToDB) {
+      throw new Error('Veritabanı bağlantısı yok');
+    }
+
+    const workshops = await Workshop.find()
+      .lean()
+      .sort({ date: 1 })
+      .select('-__v');
+
     res.json(workshops || []);
   } catch (error) {
     console.error('Atölyeleri getirme hatası:', error);
-    res.status(500).json([]);
+    res.status(500).json({
+      error: 'Atölyeler alınırken bir hata oluştu',
+      details: error.message,
+      workshops: []
+    });
   }
 });
 
@@ -147,7 +159,7 @@ app.post('/api/reservations', async (req, res) => {
     // Yeni rezervasyon için yer var mı kontrol et
     if (totalParticipants + participants > workshop.maxParticipants) {
       return res.status(400).json({ 
-        error: 'Bu atölye için yeterli kontenjan bulunmamaktadır' 
+        error: 'Bu atölye için yeteri kontenjan bulunmamaktadır' 
       });
     }
 
@@ -226,67 +238,34 @@ app.delete('/api/reservations/:id', async (req, res) => {
 // İstatistik endpoint'leri
 app.get('/api/stats', async (req, res) => {
   try {
-    // Toplam atölye sayısı
-    const totalWorkshops = await Workshop.countDocuments() || 0;
+    if (!isConnectedToDB) {
+      throw new Error('Veritabanı bağlantısı yok');
+    }
 
-    // Toplam rezervasyon sayısı
-    const totalReservations = await Reservation.countDocuments() || 0;
-
-    // Durumlara göre rezervasyon sayıları
-    const reservationsByStatus = await Reservation.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]) || [];
-
-    // Atölyelere göre rezervasyon sayıları
-    const reservationsByWorkshop = await Reservation.aggregate([
-      {
-        $lookup: {
-          from: 'workshops',
-          localField: 'workshopId',
-          foreignField: '_id',
-          as: 'workshopInfo'
-        }
-      },
-      {
-        $unwind: {
-          path: '$workshopInfo',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $group: {
-          _id: '$workshopId',
-          count: { $sum: 1 },
-          title: { $first: '$workshopInfo.title' }
-        }
-      }
-    ]) || [];
+    const [totalWorkshops, totalReservations, reservationsByStatus] = await Promise.all([
+      Workshop.countDocuments(),
+      Reservation.countDocuments(),
+      Reservation.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
 
     res.json({
       totalWorkshops,
       totalReservations,
-      reservationsByStatus: reservationsByStatus.map(status => ({
-        status: status._id || 'unknown',
-        count: status.count || 0
-      })),
-      reservationsByWorkshop: reservationsByWorkshop.map(workshop => ({
-        id: workshop._id,
-        title: workshop.title || 'Bilinmeyen Atölye',
-        count: workshop.count || 0
+      reservationsByStatus: reservationsByStatus.map(item => ({
+        status: item._id,
+        count: item.count
       }))
     });
   } catch (error) {
-    console.error('İstatistik hatası:', error);
+    console.error('Stats getirme hatası:', error);
     res.status(500).json({
+      error: 'İstatistikler alınırken bir hata oluştu',
+      details: error.message,
       totalWorkshops: 0,
       totalReservations: 0,
-      reservationsByStatus: [],
-      reservationsByWorkshop: []
+      reservationsByStatus: []
     });
   }
 });
@@ -294,13 +273,36 @@ app.get('/api/stats', async (req, res) => {
 // MongoDB Atlas Bağlantısı
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
 
+let isConnectedToDB = false;
+
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
+.then(() => {
   console.log('MongoDB Atlas bağlantısı başarılı');
-}).catch(err => {
+  isConnectedToDB = true;
+})
+.catch(err => {
   console.error('MongoDB Atlas bağlantı hatası:', err);
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('error', err => {
+  console.error('MongoDB bağlantı hatası:', err);
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bağlantısı koptu');
+  isConnectedToDB = false;
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB bağlantısı yeniden sağlandı');
+  isConnectedToDB = true;
 });
 
 // Workshop Şeması
