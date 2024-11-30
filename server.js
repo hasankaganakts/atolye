@@ -49,7 +49,7 @@ app.get('/admin', (req, res) => {
 });
 
 // MongoDB Atlas Bağlantısı
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye?retryWrites=true&w=majority';
 
 // Workshop Şeması
 const workshopSchema = new mongoose.Schema({
@@ -84,29 +84,39 @@ const Reservation = mongoose.model('Reservation', reservationSchema);
 let isConnectedToDB = false;
 
 // MongoDB Bağlantısı
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
-.then(() => {
-  console.log('MongoDB Atlas bağlantısı başarılı');
-  isConnectedToDB = true;
-})
-.catch(err => {
-  console.error('MongoDB Atlas bağlantı hatası:', err);
-  isConnectedToDB = false;
-});
+async function connectToMongoDB() {
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    console.log('MongoDB Atlas bağlantısı başarılı');
+    isConnectedToDB = true;
+  } catch (err) {
+    console.error('MongoDB Atlas bağlantı hatası:', err);
+    isConnectedToDB = false;
+    // 5 saniye sonra tekrar bağlanmayı dene
+    setTimeout(connectToMongoDB, 5000);
+  }
+}
+
+// İlk bağlantıyı başlat
+connectToMongoDB();
 
 mongoose.connection.on('error', err => {
   console.error('MongoDB bağlantı hatası:', err);
   isConnectedToDB = false;
+  // Hata durumunda tekrar bağlanmayı dene
+  setTimeout(connectToMongoDB, 5000);
 });
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB bağlantısı koptu');
   isConnectedToDB = false;
+  // Bağlantı koptuğunda tekrar bağlanmayı dene
+  setTimeout(connectToMongoDB, 5000);
 });
 
 mongoose.connection.on('connected', () => {
