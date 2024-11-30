@@ -200,14 +200,27 @@ app.post('/api/reservations', async (req, res) => {
       return res.status(404).json({ error: 'Atölye bulunamadı' });
     }
 
-    // Yeni rezervasyon oluştur
+    // Mevcut rezervasyonları kontrol et
+    const existingReservations = await Reservation.sum('participants', {
+      where: { WorkshopId: workshopId }
+    }) || 0;
+
+    // Yeni rezervasyon için yer var mı kontrol et
+    if (existingReservations + participants > workshop.maxParticipants) {
+      return res.status(400).json({ 
+        error: 'Üzgünüz, atölyede yeterli kontenjan kalmadı' 
+      });
+    }
+
+    // Rezervasyonu oluştur
     const reservation = await Reservation.create({
       WorkshopId: workshopId,
       fullName,
       email,
       phone,
       participants,
-      notes
+      notes,
+      status: 'pending'
     });
 
     res.status(201).json({

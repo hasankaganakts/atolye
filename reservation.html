@@ -143,7 +143,7 @@
                 url: `/api/workshops/${workshopId}`,
                 method: 'GET',
                 success: function(workshop) {
-                    $('#workshopId').val(workshop._id);
+                    $('#workshopId').val(workshop.id);
                     
                     // Atölye bilgilerini göster
                     const workshopDate = new Date(workshop.date).toLocaleDateString('tr-TR');
@@ -207,22 +207,15 @@
                 $.ajax({
                     url: '/api/reservations',
                     method: 'POST',
-                    data: JSON.stringify(formData),
                     contentType: 'application/json',
+                    data: JSON.stringify(formData),
                     success: function(response) {
-                        console.log('Başarılı yanıt:', response);
-                        alert('Rezervasyonunuz başarıyla oluşturuldu!');
-                        window.location.href = '/'; // Ana sayfaya yönlendir
+                        alert('Rezervasyonunuz başarıyla alındı!');
+                        window.location.href = '/workshops.html';
                     },
                     error: function(xhr, status, error) {
-                        console.error('Hata detayları:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            error: error
-                        });
-                        
-                        let errorMessage = 'Rezervasyon oluşturulurken bir hata oluştu.';
+                        console.error('Rezervasyon hatası:', error);
+                        let errorMessage = 'Rezervasyon yapılırken bir hata oluştu.';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             errorMessage = xhr.responseJSON.error;
                         }
