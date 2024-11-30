@@ -96,64 +96,64 @@
 
         <!-- Workshops Section -->
         <div id="workshops" class="content-section" style="display: none;">
-            <h2>Atölyeler</h2>
-            <div class="mb-4">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkshopModal">
-                    <i class="fas fa-plus"></i> Yeni Atölye Ekle
-                </button>
+            <div class="row mb-4">
+                <div class="col">
+                    <h2>Atölye Yönetimi</h2>
+                </div>
+                <div class="col text-end">
+                    <button class="btn btn-primary" onclick="showForm()">
+                        <i class="fas fa-plus"></i> Yeni Atölye Ekle
+                    </button>
+                </div>
             </div>
-            <div class="row mt-4" id="workshopsList">
-                <!-- Workshop cards will be loaded here -->
-            </div>
-        </div>
 
-        <!-- Add Workshop Modal -->
-        <div class="modal fade" id="addWorkshopModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Yeni Atölye Ekle</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- Atölye Listesi -->
+            <div class="card mb-4" id="workshopList">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Başlık</th>
+                                    <th>Tarih</th>
+                                    <th>Saat</th>
+                                    <th>Süre</th>
+                                    <th>Katılımcı</th>
+                                    <th>Fiyat</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workshopsTableBody">
+                                <!-- Atölyeler JavaScript ile buraya yüklenecek -->
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="modal-body">
-                        <form id="addWorkshopForm">
-                            <div class="mb-3">
-                                <label class="form-label">Atölye Adı</label>
-                                <input type="text" class="form-control" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Açıklama</label>
-                                <textarea class="form-control" name="description" rows="3" required></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tarih</label>
-                                <input type="date" class="form-control" name="date" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Saat</label>
-                                <input type="time" class="form-control" name="time" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Süre (Saat)</label>
-                                <input type="number" class="form-control" name="duration" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Maksimum Katılımcı</label>
-                                <input type="number" class="form-control" name="maxParticipants" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Fiyat (TL)</label>
-                                <input type="number" class="form-control" name="price" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Resim URL</label>
-                                <input type="url" class="form-control" name="imageUrl">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                        <button type="button" class="btn btn-primary" onclick="addWorkshop()">Ekle</button>
+                </div>
+            </div>
+
+            <!-- Rezervasyon Listesi -->
+            <div class="card mb-4" id="reservationList">
+                <div class="card-header">
+                    <h3 class="mb-0">Rezervasyonlar</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Atölye</th>
+                                    <th>Ad Soyad</th>
+                                    <th>E-posta</th>
+                                    <th>Telefon</th>
+                                    <th>Katılımcı Sayısı</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservationsTableBody">
+                                <!-- Rezervasyonlar JavaScript ile buraya yüklenecek -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -437,6 +437,96 @@
 
         // Load initial dashboard stats
         loadDashboardStats();
+
+        $(document).ready(function() {
+            loadWorkshops();
+            loadReservations();
+        });
+
+        // Rezervasyonları yükle
+        function loadReservations() {
+            $.ajax({
+                url: '/api/reservations',
+                method: 'GET',
+                success: function(reservations) {
+                    const tbody = $('#reservationsTableBody');
+                    tbody.empty();
+                    
+                    reservations.forEach(reservation => {
+                        const row = `
+                            <tr>
+                                <td>${reservation.Workshop.title}</td>
+                                <td>${reservation.fullName}</td>
+                                <td>${reservation.email}</td>
+                                <td>${reservation.phone}</td>
+                                <td>${reservation.participants} kişi</td>
+                                <td>
+                                    <select class="form-select form-select-sm" 
+                                            onchange="updateReservationStatus(${reservation.id}, this.value)">
+                                        <option value="pending" ${reservation.status === 'pending' ? 'selected' : ''}>Beklemede</option>
+                                        <option value="confirmed" ${reservation.status === 'confirmed' ? 'selected' : ''}>Onaylandı</option>
+                                        <option value="cancelled" ${reservation.status === 'cancelled' ? 'selected' : ''}>İptal Edildi</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteReservation(${reservation.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Rezervasyonlar yüklenirken hata oluştu:', error);
+                    $('#reservationsTableBody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center text-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Rezervasyonlar yüklenirken bir hata oluştu
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        }
+
+        // Rezervasyon durumu güncelleme
+        function updateReservationStatus(id, status) {
+            $.ajax({
+                url: `/api/reservations/${id}/status`,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({ status }),
+                success: function(response) {
+                    alert('Rezervasyon durumu güncellendi');
+                    loadReservations();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Rezervasyon durumu güncellenirken hata oluştu:', error);
+                    alert('Rezervasyon durumu güncellenirken bir hata oluştu');
+                }
+            });
+        }
+
+        // Rezervasyon silme
+        function deleteReservation(id) {
+            if (confirm('Bu rezervasyonu silmek istediğinizden emin misiniz?')) {
+                $.ajax({
+                    url: `/api/reservations/${id}`,
+                    method: 'DELETE',
+                    success: function(response) {
+                        alert('Rezervasyon başarıyla silindi');
+                        loadReservations();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Rezervasyon silinirken hata oluştu:', error);
+                        alert('Rezervasyon silinirken bir hata oluştu');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
