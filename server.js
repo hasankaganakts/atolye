@@ -1,52 +1,16 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config();
+
 const app = express();
+const port = process.env.PORT || 3003;
 
-// CORS ayarları
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Middleware
+// CORS ve JSON middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Debug için log middleware'i
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
-
-// Route tanımlamaları
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index-3.html'));
-});
-
-app.get('/index', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index-3.html'));
-});
-
-app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index-3.html'));
-});
-
-app.get('/yonetim', (req, res) => {
-  res.sendFile(path.join(__dirname, 'yonetim.html'));
-});
-
-app.get('/reservation', (req, res) => {
-  res.sendFile(path.join(__dirname, 'reservation.html'));
-});
-
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin.html'));
-});
 
 // MongoDB Atlas Bağlantısı
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye?retryWrites=true&w=majority';
@@ -86,18 +50,27 @@ let isConnectedToDB = false;
 // MongoDB Bağlantısı
 async function connectToMongoDB() {
   try {
+    if (mongoose.connection.readyState === 1) {
+      console.log('MongoDB zaten bağlı');
+      isConnectedToDB = true;
+      return;
+    }
+
     await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      keepAlive: true,
+      keepAliveInitialDelay: 300000
     });
+    
     console.log('MongoDB Atlas bağlantısı başarılı');
     isConnectedToDB = true;
   } catch (err) {
     console.error('MongoDB Atlas bağlantı hatası:', err);
     isConnectedToDB = false;
-    // 5 saniye sonra tekrar bağlanmayı dene
     setTimeout(connectToMongoDB, 5000);
   }
 }
@@ -108,14 +81,12 @@ connectToMongoDB();
 mongoose.connection.on('error', err => {
   console.error('MongoDB bağlantı hatası:', err);
   isConnectedToDB = false;
-  // Hata durumunda tekrar bağlanmayı dene
   setTimeout(connectToMongoDB, 5000);
 });
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB bağlantısı koptu');
   isConnectedToDB = false;
-  // Bağlantı koptuğunda tekrar bağlanmayı dene
   setTimeout(connectToMongoDB, 5000);
 });
 
@@ -128,15 +99,15 @@ mongoose.connection.on('connected', () => {
 app.get('/api/stats', async (req, res) => {
   try {
     if (!isConnectedToDB) {
-      throw new Error('Veritabanı bağlantısı yok');
+      await connectToMongoDB();
     }
 
     const [totalWorkshops, totalReservations, reservationsByStatus] = await Promise.all([
-      Workshop.countDocuments(),
-      Reservation.countDocuments(),
+      Workshop.countDocuments().exec(),
+      Reservation.countDocuments().exec(),
       Reservation.aggregate([
         { $group: { _id: "$status", count: { $sum: 1 } } }
-      ])
+      ]).exec()
     ]);
 
     res.json({
@@ -162,13 +133,14 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/workshops', async (req, res) => {
   try {
     if (!isConnectedToDB) {
-      throw new Error('Veritabanı bağlantısı yok');
+      await connectToMongoDB();
     }
 
     const workshops = await Workshop.find()
       .lean()
       .sort({ date: 1 })
-      .select('-__v');
+      .select('-__v')
+      .exec();
 
     res.json(workshops || []);
   } catch (error) {
@@ -184,13 +156,14 @@ app.get('/api/workshops', async (req, res) => {
 app.get('/api/reservations', async (req, res) => {
   try {
     if (!isConnectedToDB) {
-      throw new Error('Veritabanı bağlantısı yok');
+      await connectToMongoDB();
     }
 
     const reservations = await Reservation.find()
       .populate('workshopId', 'title')
       .lean()
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .exec();
 
     res.json(reservations || []);
   } catch (error) {
@@ -206,7 +179,7 @@ app.get('/api/reservations', async (req, res) => {
 app.post('/api/workshops', async (req, res) => {
   try {
     if (!isConnectedToDB) {
-      throw new Error('Veritabanı bağlantısı yok');
+      await connectToMongoDB();
     }
 
     const workshop = new Workshop(req.body);
@@ -223,28 +196,16 @@ app.post('/api/workshops', async (req, res) => {
 
 app.post('/api/reservations', async (req, res) => {
   try {
-    const { workshopId, fullName, email, phone, participants, notes } = req.body;
+    if (!isConnectedToDB) {
+      await connectToMongoDB();
+    }
 
+    const { workshopId, fullName, email, phone, participants, notes } = req.body;
+    
     // Workshop'u kontrol et
     const workshop = await Workshop.findById(workshopId);
     if (!workshop) {
       return res.status(404).json({ error: 'Atölye bulunamadı' });
-    }
-
-    // Mevcut rezervasyonları kontrol et
-    const existingReservations = await Reservation.find({ 
-      workshopId: workshopId,
-      status: { $ne: 'cancelled' } // İptal edilmemiş rezervasyonlar
-    });
-
-    // Toplam katılımcı sayısını hesapla
-    const totalParticipants = existingReservations.reduce((sum, res) => sum + res.participants, 0);
-
-    // Yeni rezervasyon için yer var mı kontrol et
-    if (totalParticipants + participants > workshop.maxParticipants) {
-      return res.status(400).json({ 
-        error: 'Bu atölye için yeteri kontenjan bulunmamaktadır' 
-      });
     }
 
     // Yeni rezervasyon oluştur
@@ -254,117 +215,44 @@ app.post('/api/reservations', async (req, res) => {
       email,
       phone,
       participants,
-      notes,
-      status: 'pending'
+      notes
     });
 
     await reservation.save();
     res.status(201).json({ 
-      message: 'Rezervasyon başarıyla oluşturuldu',
+      message: 'Rezervasyon başarıyla oluşturuldu', 
       reservation 
     });
-
   } catch (error) {
     console.error('Rezervasyon oluşturma hatası:', error);
-    res.status(500).json({ error: 'Rezervasyon oluşturulurken bir hata oluştu' });
+    res.status(500).json({ 
+      error: 'Rezervasyon oluşturulurken bir hata oluştu',
+      details: error.message
+    });
   }
 });
 
-app.get('/api/workshops/all', async (req, res) => {
-  try {
-    const workshops = await Workshop.find()
-      .sort({ date: 1 });
-    res.json(workshops);
-  } catch (err) {
-    console.error('Atölye listesi getirme hatası:', err);
-    res.status(500).json({ error: 'Atölyeler getirilemedi', details: err.message });
-  }
+// Ana route'lar
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index-3.html'));
 });
 
-app.get('/api/workshops/:id', async (req, res) => {
-  try {
-    const workshop = await Workshop.findById(req.params.id);
-    if (!workshop) {
-      return res.status(404).json({ error: 'Atölye bulunamadı' });
-    }
-    res.json(workshop);
-  } catch (error) {
-    console.error('Atölye getirme hatası:', error);
-    res.status(500).json({ error: 'Atölye bilgileri alınırken bir hata oluştu' });
-  }
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index-3.html'));
 });
 
-app.put('/api/workshops/:id', async (req, res) => {
-  try {
-    const workshop = await Workshop.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!workshop) {
-      return res.status(404).json({ error: 'Atölye bulunamadı' });
-    }
-    res.json({ message: 'Atölye başarıyla güncellendi', workshop });
-  } catch (error) {
-    console.error('Atölye güncelleme hatası:', error);
-    res.status(500).json({ error: 'Atölye güncellenirken bir hata oluştu' });
-  }
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index-3.html'));
 });
 
-app.delete('/api/workshops/:id', async (req, res) => {
-  try {
-    const workshop = await Workshop.findByIdAndDelete(req.params.id);
-    if (!workshop) {
-      return res.status(404).json({ error: 'Atölye bulunamadı' });
-    }
-    res.json({ message: 'Atölye başarıyla silindi', workshop });
-  } catch (error) {
-    console.error('Atölye silme hatası:', error);
-    res.status(500).json({ error: 'Atölye silinirken bir hata oluştu' });
-  }
+app.get('/yonetim', (req, res) => {
+  res.sendFile(path.join(__dirname, 'yonetim.html'));
 });
 
-app.put('/api/reservations/:id/status', async (req, res) => {
-  try {
-    const { status } = req.body;
-    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ error: 'Geçersiz rezervasyon durumu' });
-    }
-
-    const reservation = await Reservation.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!reservation) {
-      return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
-    }
-
-    res.json({ message: 'Rezervasyon durumu güncellendi', reservation });
-  } catch (error) {
-    console.error('Rezervasyon güncelleme hatası:', error);
-    res.status(500).json({ error: 'Rezervasyon güncellenirken bir hata oluştu' });
-  }
-});
-
-app.delete('/api/reservations/:id', async (req, res) => {
-  try {
-    const reservation = await Reservation.findByIdAndDelete(req.params.id);
-    if (!reservation) {
-      return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
-    }
-    res.json({ message: 'Rezervasyon başarıyla silindi', reservation });
-  } catch (error) {
-    console.error('Rezervasyon silme hatası:', error);
-    res.status(500).json({ error: 'Rezervasyon silinirken bir hata oluştu' });
-  }
-});
-
-// Statik dosyaları servis et (route tanımlamalarından sonra)
+// Statik dosyaları servis et
 app.use(express.static(__dirname));
 
-const PORT = process.env.PORT || 3003;
-app.listen(PORT, () => {
-  console.log(`Server ${PORT} portunda çalışıyor - ${new Date().toISOString()}`);
+// Sunucuyu başlat
+app.listen(port, () => {
+  console.log(`Sunucu ${port} portunda çalışıyor`);
 });
