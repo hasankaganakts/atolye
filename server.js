@@ -67,7 +67,7 @@ const Reservation = mongoose.model('Reservation', reservationSchema);
 
 // API Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index-3.html'));
 });
 
 app.get('/reservation', (req, res) => {
