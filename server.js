@@ -16,7 +16,6 @@ app.use(cors({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname)); // Ana dizindeki tüm dosyaları servis et
 
 // Debug için log middleware'i
 app.use((req, res, next) => {
@@ -24,50 +23,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB Atlas Bağlantısı
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
-
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('MongoDB Atlas bağlantısı başarılı');
-}).catch(err => {
-  console.error('MongoDB Atlas bağlantı hatası:', err);
-});
-
-// Workshop Şeması
-const workshopSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  date: { type: Date, required: true },
-  time: { type: String, required: true },
-  duration: { type: Number, required: true },
-  maxParticipants: { type: Number, required: true },
-  price: { type: Number, required: true },
-  imageUrl: { type: String },
-  isActive: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now }
-});
-
-// Reservation Şeması
-const reservationSchema = new mongoose.Schema({
-  workshopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop', required: true },
-  fullName: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  participants: { type: Number, required: true },
-  notes: String,
-  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Workshop = mongoose.model('Workshop', workshopSchema);
-const Reservation = mongoose.model('Reservation', reservationSchema);
-
-// API Routes
+// Route tanımlamaları
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index-3.html'));
+});
+
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index-3.html'));
+});
+
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index-3.html'));
+});
+
+app.get('/yonetim', (req, res) => {
+  res.sendFile(path.join(__dirname, 'yonetim.html'));
 });
 
 app.get('/reservation', (req, res) => {
@@ -320,6 +290,50 @@ app.get('/api/stats', async (req, res) => {
     });
   }
 });
+
+// MongoDB Atlas Bağlantısı
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hasankaganakts:Hasan.94@cluster0.1acuq.mongodb.net/makerx_atolye';
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB Atlas bağlantısı başarılı');
+}).catch(err => {
+  console.error('MongoDB Atlas bağlantı hatası:', err);
+});
+
+// Workshop Şeması
+const workshopSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  duration: { type: Number, required: true },
+  maxParticipants: { type: Number, required: true },
+  price: { type: Number, required: true },
+  imageUrl: { type: String },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Reservation Şeması
+const reservationSchema = new mongoose.Schema({
+  workshopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop', required: true },
+  fullName: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  participants: { type: Number, required: true },
+  notes: String,
+  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Workshop = mongoose.model('Workshop', workshopSchema);
+const Reservation = mongoose.model('Reservation', reservationSchema);
+
+// Statik dosyaları servis et (route tanımlamalarından sonra)
+app.use(express.static(__dirname));
 
 const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
