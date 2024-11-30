@@ -95,7 +95,7 @@
         $(document).ready(function() {
             // Atölyeleri getir
             $.ajax({
-                url: 'http://localhost:3003/api/workshops',
+                url: '/api/workshops/all',  // Yeni endpoint'i kullan
                 method: 'GET',
                 success: function(workshops) {
                     const workshopsContainer = $('#workshopsContainer');
@@ -122,9 +122,17 @@
                                             <p><i class="fas fa-users"></i> ${workshop.maxParticipants} kişi</p>
                                             <p><i class="fas fa-tag"></i> ${workshop.price} TL</p>
                                         </div>
-                                        <a href="/reservation.html?id=${workshop._id}" class="btn btn-primary w-100">
-                                            <i class="fas fa-calendar-check"></i> Rezervasyon Yap
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="/reservation.html?id=${workshop.id}" class="btn btn-primary flex-grow-1">
+                                                <i class="fas fa-calendar-check"></i> Rezervasyon Yap
+                                            </a>
+                                            <button class="btn btn-warning" onclick="editWorkshop(${workshop.id})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger" onclick="deleteWorkshop(${workshop.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -145,6 +153,29 @@
                 }
             });
         });
+
+        // Atölye düzenleme fonksiyonu
+        function editWorkshop(id) {
+            window.location.href = `/admin.html?edit=${id}`;
+        }
+
+        // Atölye silme fonksiyonu
+        function deleteWorkshop(id) {
+            if (confirm('Bu atölyeyi silmek istediğinizden emin misiniz?')) {
+                $.ajax({
+                    url: `/api/workshops/${id}`,
+                    method: 'DELETE',
+                    success: function(response) {
+                        alert('Atölye başarıyla silindi');
+                        location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Atölye silinirken hata oluştu:', error);
+                        alert('Atölye silinirken bir hata oluştu');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>

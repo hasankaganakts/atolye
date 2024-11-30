@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MakerX Atölye - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        .form-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .btn-submit {
+            background-color: #f4511e;
+            border-color: #f4511e;
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-submit:hover {
+            background-color: #e04018;
+            border-color: #e04018;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="form-container">
+            <div class="form-title">
+                <h2 id="formTitle">Atölye Ekle</h2>
+            </div>
+            <form id="workshopForm">
+                <div class="form-group">
+                    <label for="title">Atölye Başlığı</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Açıklama</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="date">Tarih</label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="time">Saat</label>
+                    <input type="time" class="form-control" id="time" name="time" required>
+                </div>
+                <div class="form-group">
+                    <label for="duration">Süre (Saat)</label>
+                    <input type="number" class="form-control" id="duration" name="duration" required>
+                </div>
+                <div class="form-group">
+                    <label for="maxParticipants">Maksimum Katılımcı Sayısı</label>
+                    <input type="number" class="form-control" id="maxParticipants" name="maxParticipants" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Fiyat (TL)</label>
+                    <input type="number" class="form-control" id="price" name="price" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">Görsel URL</label>
+                    <input type="url" class="form-control" id="imageUrl" name="imageUrl">
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit" id="submitButton">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let editId = null;
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Düzenleme modu kontrolü
+            if (urlParams.has('edit')) {
+                editId = urlParams.get('edit');
+                $('#formTitle').text('Atölye Düzenle');
+                $('#submitButton').html('<i class="fas fa-save"></i> Güncelle');
+                
+                // Atölye bilgilerini getir
+                $.ajax({
+                    url: `/api/workshops/${editId}`,
+                    method: 'GET',
+                    success: function(workshop) {
+                        $('#title').val(workshop.title);
+                        $('#description').val(workshop.description);
+                        $('#date').val(workshop.date.split('T')[0]);
+                        $('#time').val(workshop.time);
+                        $('#duration').val(workshop.duration);
+                        $('#maxParticipants').val(workshop.maxParticipants);
+                        $('#price').val(workshop.price);
+                        $('#imageUrl').val(workshop.imageUrl);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Atölye bilgileri alınırken hata oluştu:', error);
+                        alert('Atölye bilgileri alınırken bir hata oluştu');
+                    }
+                });
+            }
+
+            // Form gönderimi
+            $('#workshopForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    title: $('#title').val(),
+                    description: $('#description').val(),
+                    date: $('#date').val(),
+                    time: $('#time').val(),
+                    duration: parseInt($('#duration').val()),
+                    maxParticipants: parseInt($('#maxParticipants').val()),
+                    price: parseFloat($('#price').val()),
+                    imageUrl: $('#imageUrl').val() || null,
+                    isActive: true
+                };
+
+                const url = editId ? `/api/workshops/${editId}` : '/api/workshops';
+                const method = editId ? 'PUT' : 'POST';
+
+                $.ajax({
+                    url: url,
+                    method: method,
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        alert(editId ? 'Atölye başarıyla güncellendi' : 'Atölye başarıyla eklendi');
+                        window.location.href = '/workshops.html';
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('İşlem sırasında hata oluştu:', error);
+                        alert('İşlem sırasında bir hata oluştu');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

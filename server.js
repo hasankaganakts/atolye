@@ -223,6 +223,85 @@ app.post('/api/reservations', async (req, res) => {
   }
 });
 
+// Tüm atölyeleri getir (workshops.html için)
+app.get('/api/workshops/all', async (req, res) => {
+  try {
+    const workshops = await Workshop.findAll({
+      order: [['date', 'ASC']],
+      where: {
+        isActive: true
+      }
+    });
+    res.json(workshops);
+  } catch (error) {
+    console.error('Atölye listesi getirme hatası:', error);
+    res.status(500).json({ 
+      error: 'Atölyeler getirilemedi', 
+      details: error.message 
+    });
+  }
+});
+
+// Tek bir atölyeyi getir
+app.get('/api/workshops/:id', async (req, res) => {
+  try {
+    const workshop = await Workshop.findByPk(req.params.id);
+    if (!workshop) {
+      return res.status(404).json({ error: 'Atölye bulunamadı' });
+    }
+    res.json(workshop);
+  } catch (error) {
+    console.error('Atölye getirme hatası:', error);
+    res.status(500).json({ 
+      error: 'Atölye bilgileri alınırken bir hata oluştu',
+      details: error.message 
+    });
+  }
+});
+
+// Atölye güncelle
+app.put('/api/workshops/:id', async (req, res) => {
+  try {
+    const workshop = await Workshop.findByPk(req.params.id);
+    if (!workshop) {
+      return res.status(404).json({ error: 'Atölye bulunamadı' });
+    }
+
+    await workshop.update(req.body);
+    res.json({ 
+      message: 'Atölye başarıyla güncellendi', 
+      workshop 
+    });
+  } catch (error) {
+    console.error('Atölye güncelleme hatası:', error);
+    res.status(500).json({ 
+      error: 'Atölye güncellenirken bir hata oluştu',
+      details: error.message 
+    });
+  }
+});
+
+// Atölye sil
+app.delete('/api/workshops/:id', async (req, res) => {
+  try {
+    const workshop = await Workshop.findByPk(req.params.id);
+    if (!workshop) {
+      return res.status(404).json({ error: 'Atölye bulunamadı' });
+    }
+
+    await workshop.destroy();
+    res.json({ 
+      message: 'Atölye başarıyla silindi'
+    });
+  } catch (error) {
+    console.error('Atölye silme hatası:', error);
+    res.status(500).json({ 
+      error: 'Atölye silinirken bir hata oluştu',
+      details: error.message 
+    });
+  }
+});
+
 // Ana route'lar
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index-3.html'));
